@@ -14,6 +14,8 @@ const userrouter = require('./Routes/userRoutes');
 const blogRoute = require('./Routes/blog');
 const bugRoute = require('./Routes/bugRoutes');
 const projectRoute = require('./Routes/projectRoutes');
+const projectModelRouter = require('./Routes/projectModelRoutes');
+
 
 const app = express();
 const PORT = 5002;
@@ -86,6 +88,7 @@ app.use(staffrouter);
 app.use(blogRoute);
 app.use(bugRoute);
 app.use('/', projectRoute);
+app.use(projectModelRouter);
 
 // Start server
 app.listen(PORT, () => {

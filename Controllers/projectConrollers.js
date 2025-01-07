@@ -82,7 +82,7 @@ exports.updateTask = async (req, res) => {
   try {
     const { title, description, assignedTo, status, priority, dueDate } = req.body;
 
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findByIdAndUpdate(req.params.id);
 
     if (!task) {
       return res.status(404).send('Task not found');
