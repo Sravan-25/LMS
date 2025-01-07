@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bug Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Bug Tracker</h1>
+
+    <!-- Button to trigger Add Bug Modal -->
+    <button class="btn-add" id="addBugBtn">Add Bug</button>
+
+    <!-- Add Bug Modal -->
+    <div id="addBugModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" id="closeModal">&times;</span>
+        <h2>Add Bug</h2>
+        <form id="bugForm">
+          <label for="title">Title:</label>
+          <input type="text" id="title" name="title" required placeholder="Enter bug title">
+
+          <label for="description">Description:</label>
+          <textarea id="description" name="description" required placeholder="Enter bug description"></textarea>
+
+          <label for="reportedBy">Reported By:</label>
+          <select id="reportedBy" name="reportedBy" required>
+            <option value="">Select a Staff Member</option>
+          </select>
+
+          <label for="assignedTo">Assigned To:</label>
+          <select id="assignedTo" name="assignedTo" required>
+            <option value="">Select a Staff Member</option>
+          </select>
+
+          <label for="severity">Severity:</label>
+          <select id="severity" name="severity" required>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+
+          <label for="project">Project:</label>
+          <input type="text" id="project" name="project" required placeholder="Enter project name">
+
+          <button type="submit" class="submit-btn">Add Bug</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Display Bugs -->
+    <div class="bug-list">
+      <h2>Bugs</h2>
+      <table id="bugsTable">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Reported By</th>
+            <th>Assigned To</th>
+            <th>Severity</th>
+            <th>Project</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="bugs"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Fetch and display staff members to populate dropdowns
+    async function fetchStaff() {
+      const response = await fetch('/get-staff'); // Fetch staff data
+      const staff = await response.json();
+
+      const reportedByDropdown = document.getElementById('reportedBy');
+      const assignedToDropdown = document.getElementById('assignedTo');
+
+      // Clear existing options in the dropdowns
+      reportedByDropdown.innerHTML = '<option value="">Select a Staff Member</option>';
+      assignedToDropdown.innerHTML = '<option value="">Select a Staff Member</option>';
+
+      staff.forEach(staffMember => {
+        const option = document.createElement('option');
+        option.value = staffMember._id; // Use the staff ID as the value
+        option.textContent = `${staffMember.firstName} ${staffMember.lastName}`;
+
+        // Add option to both dropdowns
+        reportedByDropdown.appendChild(option);
+        assignedToDropdown.appendChild(option.cloneNode(true));
+      });
+    }
+
+    // Fetch and display bugs
+    async function fetchBugs() {
+      const response = await fetch('/display-bugs');
+      const bugs = await response.json();
+      console.log('Fetched Bugs:', bugs); // Log the bugs data to check the structure
+
+      const bugContainer = document.getElementById('bugs');
+      bugContainer.innerHTML = '';
+
+      bugs.forEach((bug, index) => {
+        const bugItem = document.createElement('tr');
+        bugItem.classList.add('bug-item');
+
+        // Add class for severity
+        let severityClass = '';
+        switch (bug.severity) {
+          case 'Low':
+            severityClass = 'severity-low';
+            break;
+          case 'Medium':
+            severityClass = 'severity-medium';
+            break;
+          case 'High':
+            severityClass = 'severity-high';
+            break;
+        }
+
+        bugItem.innerHTML = `
+      <td>${bug.title}</td>
+      <td>${bug.description}</td>
+      <td>${bug.reportedBy ? bug.reportedBy.firstName + ' ' + bug.reportedBy.lastName : 'N/A'}</td>
+      <td>${bug.assignedTo ? bug.assignedTo.firstName + ' ' + bug.assignedTo.lastName : 'N/A'}</td>
+      <td class="${severityClass}">${bug.severity}</td>
+      <td>${bug.project}</td>
+      <td>
+        <button class="btn-edit" onclick="editBug('${bug._id}')"><i class="fas fa-edit"></i></button>
+        <button class="btn-delete" onclick="deleteBug('${bug._id}')"><i class="fas fa-trash-alt"></i></button>
+      </td>
+    `;
+        bugItem.classList.toggle('even', index % 2 === 0); // Alternate row styling
+        bugContainer.appendChild(bugItem);
+      });
+    }
+
+    function closeModal() {
+      document.getElementById('addBugModal').style.display = 'none';
+    }
+
+    fetchStaff();
+    fetchBugs();
+  </script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 80%;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .btn-add {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .btn-add:hover {
+      background-color: #45a049;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      /* Ensure modal appears above other content */
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 30px;
+      width: 400px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* Table Styles */
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .btn-edit,
+    .btn-delete {
+      padding: 6px 12px;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .btn-edit {
+      color: #007bff;
+    }
+
+    .btn-delete {
+      color: #dc3545;
+    }
+
+    .btn-edit:hover {
+      color: #007bff;
+    }
+
+    .btn-delete:hover {
+      color: #e03e32;
+    }
+
+    .severity-low {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .severity-medium {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .severity-high {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .even {
+      background-color: #f9f9f9;
+    }
+
+    /* General Styles */
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+      height: 100px;
+    }
+
+    /* Form Container */
+    .modal-content form {
+      display: flex;
+      flex-direction: column;
+      gap: 0px;
+    }
+
+    form {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Label Styling */
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .submit-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .submit-btn:hover {
+      background-color: #45a049;
+    }
+  </style>
+
+</body>
+
+</html>

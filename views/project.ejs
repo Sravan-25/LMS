@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Tasks</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .search-bar {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #taskSearch {
+      width: 70%;
+      padding: 12px;
+      font-size: 14px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      box-sizing: border-box;
+    }
+
+    #taskSearch:focus {
+      border-color: #5c67f2;
+      outline: none;
+    }
+
+    button {
+      background-color: #5c67f2;
+      color: white;
+      font-size: 16px;
+      padding: 12px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #4a54e1;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    table th,
+    table td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+
+    table th {
+      background-color: #f4f4f4;
+      font-weight: bold;
+      color: #333;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    table tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .task-actions a {
+      color: #5c67f2;
+      font-size: 14px;
+      text-decoration: none;
+      margin-right: 10px;
+    }
+
+    .task-actions a:hover {
+      text-decoration: underline;
+    }
+
+    .form-popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background-color: #fff;
+      padding: 25px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      z-index: 10;
+      width: 400px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    .form-popup.active {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .form-popup form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-popup input,
+    .form-popup select,
+    .form-popup textarea {
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      width: 100%;
+    }
+
+    .form-popup textarea {
+      resize: vertical;
+      height: 80px;
+    }
+
+    .form-popup button {
+      background-color: #28a745;
+      border-radius: 5px;
+      padding: 12px 20px;
+    }
+
+    .form-popup button.close-btn {
+      background-color: #f44336;
+    }
+
+    .form-popup button:hover {
+      background-color: #218838;
+    }
+
+    .form-popup button.close-btn:hover {
+      background-color: #e03e36;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Project Tasks</h1>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <input type="text" id="taskSearch" placeholder="Search tasks..." onkeyup="searchTasks()">
+      <button onclick="openForm()">Add Task</button>
+    </div>
+
+    <!-- Task Table -->
+    <table id="tasksTable">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Priority</th>
+          <th>Due Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% tasks.forEach(task => { %>
+        <tr>
+          <td><%= task.title %></td>
+          <td><%= task.description %></td>
+          <td><%= task.status %></td>
+          <td><%= task.priority %></td>
+          <td><%= task.dueDate ? task.dueDate.toDateString() : 'N/A' %></td>
+          <td class="task-actions">
+            <!-- Edit and Delete buttons -->
+            <a href="/edit-task/<%= task._id %>">✏️ Edit</a>
+            <a href="/delete-task/<%= task._id %>">🗑️ Delete</a>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <!-- Popup Form -->
+    <div class="form-popup" id="taskForm">
+      <h2>Create New Task</h2>
+      <form action="/create-task" method="POST">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="description">Description:</label>
+        <textarea id="description" name="description"></textarea>
+
+        <label for="assignedTo">Assign To:</label>
+        <select id="assignedTo" name="assignedTo" required>
+          <option value="">Select Staff</option>
+          <% staff.forEach(person => { %>
+          <option value="<%= person._id %>"><%= person.firstName %> <%= person.lastName %></option>
+          <% }) %>
+        </select>
+
+        <label for="status">Status:</label>
+        <select id="status" name="status">
+          <option value="Not Started">Not Started</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+
+        <label for="priority">Priority:</label>
+        <select id="priority" name="priority">
+          <option value="Low">Low</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="High">High</option>
+        </select>
+
+        <label for="dueDate">Due Date:</label>
+        <input type="date" id="dueDate" name="dueDate">
+
+        <button type="submit">Create Task</button>
+        <button type="button" class="close-btn" onclick="closeForm()">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Open the Create Task form
+    function openForm() {
+      const form = document.getElementById("taskForm");
+      form.style.display = "block";
+      setTimeout(() => {
+        form.classList.add("active");
+      }, 10);
+    }
+
+    // Close the Create Task form
+    function closeForm() {
+      const form = document.getElementById("taskForm");
+      form.classList.remove("active");
+      setTimeout(() => {
+        form.style.display = "none";
+      }, 300);
+    }
+
+    // Function to search tasks (can be enhanced with actual search functionality)
+    function searchTasks() {
+      const query = document.getElementById("taskSearch").value.toLowerCase();
+      const rows = document.querySelectorAll("#tasksTable tbody tr");
+
+      rows.forEach(row => {
+        const title = row.querySelector("td:nth-child(1)").innerText.toLowerCase();
+        if (title.includes(query)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bug Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Bug Tracker</h1>
+
+    <!-- Button to trigger Add Bug Modal -->
+    <button class="btn-add" id="addBugBtn">Add Bug</button>
+
+    <!-- Add Bug Modal -->
+    <div id="addBugModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" id="closeModal">&times;</span>
+        <h2>Add Bug</h2>
+        <form id="bugForm">
+          <label for="title">Title:</label>
+          <input type="text" id="title" name="title" required placeholder="Enter bug title">
+
+          <label for="description">Description:</label>
+          <textarea id="description" name="description" required placeholder="Enter bug description"></textarea>
+
+          <label for="reportedBy">Reported By:</label>
+          <select id="reportedBy" name="reportedBy" required>
+            <option value="">Select a Staff Member</option>
+          </select>
+
+          <label for="assignedTo">Assigned To:</label>
+          <select id="assignedTo" name="assignedTo" required>
+            <option value="">Select a Staff Member</option>
+          </select>
+
+          <label for="severity">Severity:</label>
+          <select id="severity" name="severity" required>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+
+          <label for="project">Project:</label>
+          <input type="text" id="project" name="project" required placeholder="Enter project name">
+
+          <button type="submit" class="submit-btn">Add Bug</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="addBugModal" class="modal">
+      <form id="bugForm">
+        <input type="text" id="title" placeholder="Title" required>
+        <textarea id="description" placeholder="Description" required></textarea>
+        <select id="reportedBy"></select>
+        <select id="assignedTo"></select>
+        <select id="severity">
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+        <input type="text" id="project" placeholder="Project" required>
+        <button type="submit">Update Bug</button>
+      </form>
+    </div>
+
+
+    <!-- Display Bugs -->
+    <div class="bug-list">
+      <h2>Bugs</h2>
+      <table id="bugsTable">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Reported By</th>
+            <th>Assigned To</th>
+            <th>Severity</th>
+            <th>Project</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="bugs"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Fetch and display staff members to populate dropdowns
+    async function fetchStaff() {
+      const response = await fetch('/get-staff');
+      const staff = await response.json();
+
+      const reportedByDropdown = document.getElementById('reportedBy');
+      const assignedToDropdown = document.getElementById('assignedTo');
+
+      reportedByDropdown.innerHTML = '<option value="">Select a Staff Member</option>';
+      assignedToDropdown.innerHTML = '<option value="">Select a Staff Member</option>';
+
+      staff.forEach(staffMember => {
+        const option1 = document.createElement('option');
+        option1.value = staffMember._id;
+        option1.textContent = `${staffMember.firstName} ${staffMember.lastName}`;
+
+        reportedByDropdown.appendChild(option1);
+
+        const option2 = document.createElement('option');
+        option2.value = staffMember._id;
+        option2.textContent = `${staffMember.firstName} ${staffMember.lastName}`;
+
+        assignedToDropdown.appendChild(option2);
+      });
+    }
+
+    // Fetch and display bugs
+    async function fetchBugs() {
+      const response = await fetch('/display-bugs');
+      const bugs = await response.json();
+      console.log('Fetched Bugs:', bugs);
+
+      const bugContainer = document.getElementById('bugs');
+      bugContainer.innerHTML = '';
+
+      bugs.forEach((bug, index) => {
+        const bugItem = document.createElement('tr');
+        bugItem.classList.add('bug-item');
+        bugContainer.appendChild(bugItem);
+
+        let severityClass = '';
+        switch (bug.severity) {
+          case 'Low':
+            severityClass = 'severity-low';
+            break;
+          case 'Medium':
+            severityClass = 'severity-medium';
+            break;
+          case 'High':
+            severityClass = 'severity-high';
+            break;
+        }
+
+        bugItem.innerHTML = `
+      <td>${bug.title}</td>
+      <td>${bug.description}</td>
+      <td>${bug.reportedBy ? bug.reportedBy.firstName + ' ' + bug.reportedBy.lastName : 'N/A'}</td>
+      <td>${bug.assignedTo ? bug.assignedTo.firstName + ' ' + bug.assignedTo.lastName : 'N/A'}</td>
+      <td class="${severityClass}">${bug.severity}</td>
+      <td>${bug.project}</td>
+      <td>
+        <button class="btn-edit" onclick="editBug(${bug._id})">Edit</button>
+        <a href="/delete:/id" class="btn-delete" data-bug-id="${bug._id}">Delete</a>      
+        </td>
+    `;
+        bugItem.classList.toggle('even', index % 2 === 0);
+        bugContainer.appendChild(bugItem);
+      });
+    }
+
+    // Handle form submission to add bug
+    document.getElementById('bugForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = {
+        title: e.target.title.value,
+        description: e.target.description.value,
+        reportedBy: e.target.reportedBy.value,
+        assignedTo: e.target.assignedTo.value,
+        severity: e.target.severity.value,
+        project: e.target.project.value
+      };
+
+      const response = await fetch('/bugcreate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        e.target.reset();
+        await fetchBugs();
+        closeModal();
+      } else {
+        const errorData = await response.json();
+        alert(`Error adding bug: ${errorData.message}`);
+      }
+    });
+
+    // Open the modal
+    document.getElementById('addBugBtn').addEventListener('click', () => {
+      document.getElementById('addBugModal').style.display = 'flex';
+    });
+
+    // Close the modal when clicking on the close button
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+
+    // Close the modal when clicking outside the modal content
+    window.addEventListener('click', (e) => {
+      if (e.target === document.getElementById('addBugModal')) {
+        closeModal();
+      }
+    });
+
+    function closeModal() {
+      document.getElementById('addBugModal').style.display = 'none';
+    }
+
+    // Edit Bug
+    async function editBug(bugId) {
+      console.log("Edit clicked for bugId:", bugId);
+      const response = await fetch(`/bug/${bugId}`);
+      const bug = await response.json();
+
+      if (!bug) {
+        alert('Bug not found');
+        return;
+      }
+
+      document.getElementById('title').value = bug.title;
+      document.getElementById('description').value = bug.description;
+      document.getElementById('reportedBy').value = bug.reportedBy ? bug.reportedBy._id : '';
+      document.getElementById('assignedTo').value = bug.assignedTo ? bug.assignedTo._id : '';
+      document.getElementById('severity').value = bug.severity;
+      document.getElementById('project').value = bug.project;
+
+      document.getElementById('addBugModal').style.display = 'flex';
+
+      document.getElementById('bugForm').onsubmit = async (e) => {
+        e.preventDefault();
+
+        const updatedData = {
+          title: e.target.title.value,
+          description: e.target.description.value,
+          reportedBy: e.target.reportedBy.value,
+          assignedTo: e.target.assignedTo.value,
+          severity: e.target.severity.value,
+          project: e.target.project.value
+        };
+
+        const updateResponse = await fetch(`/updatebug/${bugId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedData),
+        });
+        const updateResponseData = await updateResponse.json();
+
+        if (updateResponse.ok) {
+          alert('Bug updated successfully!');
+          fetchBugs();
+          closeModal();
+        } else {
+          console.error('Update failed:', updateResponseData);
+          alert(`Error updating bug: ${updateResponseData.message}`);
+        }
+      };
+    }
+
+    // Delete Bug
+    async function deleteBug(bugId) {
+      const response = await fetch(`/deletebug/${bugId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        alert('Bug deleted successfully!');
+        fetchBugs(); // Refresh bugs list after deletion
+      } else {
+        alert('Error deleting bug');
+      }
+    }
+
+    fetchStaff();
+    fetchBugs();
+  </script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 80%;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .btn-add {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .btn-add:hover {
+      background-color: #45a049;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      /* Ensure modal appears above other content */
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 30px;
+      width: 400px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* Table Styles */
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .btn-edit,
+    .btn-delete {
+      padding: 6px 12px;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .btn-edit {
+      color: #007bff;
+    }
+
+    .btn-delete {
+      color: #dc3545;
+    }
+
+    .btn-edit:hover {
+      color: #007bff;
+    }
+
+    .btn-delete:hover {
+      color: #e03e32;
+    }
+
+    .severity-low {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .severity-medium {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .severity-high {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .even {
+      background-color: #f9f9f9;
+    }
+
+    /* General Styles */
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+      height: 100px;
+    }
+
+    /* Form Container */
+    .modal-content form {
+      display: flex;
+      flex-direction: column;
+      gap: 0px;
+    }
+
+    form {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Label Styling */
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .submit-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .submit-btn:hover {
+      background-color: #45a049;
+    }
+  </style>
+</body>
+
+</html>

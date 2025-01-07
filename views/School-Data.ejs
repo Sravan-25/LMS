@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>School Data</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #fffffc;
+      color: #333333;
+    }
+
+    .header {
+      background-color: #BFECFF;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .header .profile {
+      margin-left: auto;
+      color: #333333;
+    }
+
+    .header .profile i {
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .main-content {
+      padding: 20px;
+    }
+
+    .table-container {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      margin-bottom: 40px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      background-color: #f5f5f5;
+      color: #111010;
+    }
+
+    td a {
+      color: #333333;
+      text-decoration: none;
+    }
+
+    td a:hover {
+      text-decoration: none;
+      color: #4CC9FE;
+    }
+
+    .no-data {
+      text-align: center;
+      color: #757575;
+      font-size: 16px;
+      padding: 20px;
+    }
+
+    .delete-icon {
+      color: red;
+    }
+
+    .edit-icon {
+      color: #4CC9FE;
+    }
+
+    .fab-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #A1EEBD;
+      color: #ffffff;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .fab-button:hover {
+      background-color: #7BD3EA;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-bottom: 20px;
+      text-decoration: none;
+      color: #ffffff;
+      padding: 10px 20px;
+      background-color: #F6D6D6;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: box-shadow 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .back-button:hover {
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="profile">
+      <i class="fas fa-user-circle"></i>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <a href="/back/home" class="back-button">
+      <i class="fas fa-arrow-left"></i> Back
+    </a>
+
+    <div class="table-container">
+      <h1>School Data</h1>
+      <% if (schools && schools.length > 0) { %>
+      <table>
+        <thead>
+          <tr>
+            <th>School Name</th>
+            <th>Address</th>
+            <th>Principal Name</th>
+            <th>Phone Number</th>
+            <th>File</th>
+            <th>Edit</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% schools.forEach(school => { %>
+          <tr>
+            <td><%= school.schoolName %></td>
+            <td><%= school.address %></td>
+            <td><%= school.principalName %></td>
+            <td><%= school.phoneNumber %></td>
+            <td><a href="/view-file/<%= school._id %>" target="_blank">View File</a></td>
+            <td>
+              <a href="/edit/<%= school._id %>" class="edit-icon">
+                <i class="fa-regular fa-pen-to-square"></i> Edit
+              </a>
+            </td>
+            <td>
+              <a href="/delete/<%= school._id %>" class="delete-icon">
+                <i class="fa-solid fa-trash"></i> Delete
+              </a>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+      <% } else { %>
+      <p class="no-data">No school data uploaded yet.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <a href="/form-page" class="fab-button">
+    <i class="fas fa-plus"></i>
+  </a>
+</body>
+
+</html>

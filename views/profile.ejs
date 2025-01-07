@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>User Profile</title>
+  <style>
+    .profile-img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .profile-info {
+      margin-top: 20px;
+    }
+
+    .profile-info h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .profile-info p {
+      font-size: 1.1rem;
+    }
+
+    .profile-info .editable {
+      margin-top: 10px;
+    }
+
+    .profile-info input,
+    .profile-info textarea,
+    .profile-info select {
+      margin: 5px;
+      padding: 10px;
+      width: 100%;
+    }
+
+    .save-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .save-btn:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="text-center">
+          <!-- Profile Image -->
+          <img src="<%= user.profileImage || '/public/image.png' %>" alt="Profile Image" class="profile-img">
+
+          <!-- Editable Profile Info -->
+          <div class="profile-info text-center">
+            <h3><%= user.name %></h3>
+            <p>Email: <%= user.email %></p>
+            <p>Joined: <%= user.createdAt.toLocaleDateString() %></p>
+
+            <!-- Editable Fields -->
+            <form action="/save-profile" method="POST" enctype="multipart/form-data">
+              <!-- Editable Fields -->
+              <div class="editable">
+                <label for="role">Role:</label>
+                <select id="role" name="role">
+                  <option value="Admin" <%= user.role === 'Admin' ? 'selected' : '' %>>Admin</option>
+                  <option value="Developer" <%= user.role === 'Developer' ? 'selected' : '' %>>Developer</option>
+                  <option value="Tester" <%= user.role === 'Tester' ? 'selected' : '' %>>Tester</option>
+                  <option value="Manager" <%= user.role === 'Manager' ? 'selected' : '' %>>Manager</option>
+                </select>
+              </div>
+
+              <div class="editable">
+                <label for="skills">Skills:</label>
+                <textarea id="skills" name="skills"><%= user.skills || '' %></textarea>
+              </div>
+
+              <div class="editable">
+                <label for="address">Address:</label>
+                <textarea id="address" name="address"><%= user.address || '' %></textarea>
+              </div>
+
+              <div class="editable">
+                <label for="socialMedia">Social Media:</label>
+                <input type="text" id="socialMedia" name="socialMedia" value="<%= user.socialMedia || '' %>">
+              </div>
+
+              <!-- Profile Picture -->
+              <div class="editable">
+                <label for="profileImage">Profile Picture:</label>
+                <input type="file" name="profileImage" accept="image/*">
+              </div>
+
+              <!-- Save Button -->
+              <button class="save-btn" type="submit">Save</button>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // You can add custom JavaScript here if needed for client-side validation or other functionalities
+  </script>
+</body>
+
+</html>

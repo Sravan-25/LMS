@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= blog.title %></title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #F9F9F9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #333;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 28px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      margin: 20px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .image-container {
+      flex: 1;
+      min-width: 250px;
+      text-align: center;
+      position: sticky;
+      top: 20px;
+    }
+
+    .image-container img {
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .content-container {
+      flex: 2;
+      max-height: 500px;
+      overflow-y: auto;
+      text-align: left;
+      padding-right: 15px;
+    }
+
+    .content-container h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #333;
+      border-bottom: 2px solid #F28A8A;
+      display: inline-block;
+    }
+
+    pre {
+      line-height: 1.8;
+      font-size: 16px;
+      color: #555;
+      text-align: justify;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      padding: 12px;
+      background-color: #f4f4f4;
+      border-radius: 5px;
+      border: 1px solid #DDDDDD;
+    }
+
+    .content-container::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    .content-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .content-container::-webkit-scrollbar-thumb {
+      background-color: #F28A8A;
+      border-radius: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .content-container::-webkit-scrollbar-thumb:hover {
+      background-color: #D86464;
+    }
+
+    .back-button-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .back-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #F28A8A;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 5px;
+      text-align: center;
+      transition: background-color 0.3s ease;
+    }
+
+    .back-button:hover {
+      background-color: #D86464;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .image-container,
+      .content-container {
+        width: 100%;
+        text-align: center;
+      }
+
+      .content-container pre {
+        text-align: justify;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1><%= blog.title %></h1>
+  <div class="container">
+    <% if (blog.image) { %>
+      <div class="image-container">
+        <img src="/blog/<%= blog.image %>" alt="Blog Image">
+      </div>
+    <% } %>
+
+    <div class="content-container">
+      <h2>Key Takeaways</h2>
+      <pre><%= blog.content %></pre>
+    </div>
+  </div>
+
+  <div class="back-button-container">
+    <a href="/blogs" class="back-button">Back to Blogs</a>
+  </div>
+</body>
+
+</html>

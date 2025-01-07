@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Cards</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f0f4f8;
+      padding: 40px;
+    }
+
+    .card {
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+      background: white;
+      padding-top: 60px;
+      position: relative;
+      height: 500px; 
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+    }
+
+    .profile-img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid white;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 80px; 
+    }
+
+    .card-text {
+      font-size: 1rem;
+      color: #6c757d;
+    }
+
+    .about-section {
+      border-radius: 8px;
+      padding: 10px;
+      margin: 15px 20px;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .social-icons {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      justify-content: center;
+    }
+
+    .social-icons i {
+      margin: 0 10px;
+      font-size: 20px;
+      color: #6c757d;
+      transition: color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      border-radius: 50%;
+      background-color: white;
+      display: inline-block;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .social-icons i.fa-instagram:hover {
+      color: white;
+      background-color: #E1306C;
+      box-shadow: 0 4px 10px rgba(225, 48, 108, 0.5);
+    }
+
+    .social-icons i.fa-twitter:hover {
+      color: white;
+      background-color: #1DA1F2;
+      box-shadow: 0 4px 10px rgba(29, 161, 242, 0.5);
+    }
+
+    .social-icons i.fa-facebook:hover {
+      color: white;
+      background-color: #1877F2;
+      box-shadow: 0 4px 10px rgba(24, 119, 242, 0.5);
+    }
+
+    .social-icons i.fa-linkedin:hover {
+      color: white;
+      background-color: #0A66C2;
+      box-shadow: 0 4px 10px rgba(10, 102, 194, 0.5);
+    }
+
+    hr {
+      border: 1px solid #ddd;
+      margin: 20px 0;
+    }
+
+    .view-profile-btn {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      color: #007bff;
+      text-align: center;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .view-profile-btn:hover {
+      color: #0056b3;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <a class="navbar-brand" href="/">Staff Management</a>
+    <div class="ml-auto">
+      <a href="/staff-info" class="btn btn-primary mr-2">+ Add Staff</a>
+      <input type="text" class="form-control d-inline w-auto" id="searchInput" placeholder="Search by name...">
+      <button class="btn btn-secondary" onclick="filterCards()">Search</button>
+    </div>
+  </nav>
+
+  <div class="container text-center">
+    <h1 class="mb-5">Staff Cards</h1>
+    <div class="row justify-content-center">
+      <% staff.forEach(member => { %>
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <img src="<%= member.image ? '/staffData/' + member.image : '/images/default.jpg' %>" class="profile-img" alt="Staff Image">
+          <div class="card-body">
+            <h5 class="card-title"><%= member.firstName %> <%= member.lastName %></h5>
+            <p class="card-text"><%= member.position %></p>
+            <div class="about-section">
+              <%= member.about%>
+            </div>
+          </div>
+          <div class="social-icons">
+            <i class="fab fa-instagram"></i>
+            <i class="fab fa-facebook"></i>
+            <i class="fab fa-twitter"></i>
+            <i class="fab fa-linkedin"></i>
+          </div>
+          <hr> <!-- Horizontal line after social icons -->
+          <a href="/profile/<%= member.id %>" class="view-profile-btn">View Profile</a> <!-- Plain text View Profile button -->
+        </div>
+      </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <script>
+    function filterCards() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.card');
+
+      cards.forEach(card => {
+        const name = card.querySelector('.card-title').innerText.toLowerCase();
+        if (name.includes(input)) {
+          card.parentElement.style.display = "block";
+        } else {
+          card.parentElement.style.display = "none";
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Blog</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #F4F4F9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    h1 {
+      color: #4A3C56;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .container {
+      background-color: #FFFFFF;
+      border-radius: 8px;
+      padding: 40px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+      color: #5F5F5F;
+    }
+
+    input,
+    textarea,
+    button,
+    select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 16px;
+      border-radius: 5px;
+      border: 1px solid #DDDDDD;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    input[type="file"] {
+      padding: 6px;
+    }
+
+    textarea {
+      height: 150px;
+      resize: vertical;
+    }
+
+    button {
+      background-color: #5D4E72;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #3C2A4A;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #5D4E72;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .back-link:hover {
+      color: #3C2A4A;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Edit Blog</h1>
+    <form action="/edit/<%= blog._id %>" method="POST" enctype="multipart/form-data">
+      <label for="title">Title:</label>
+      <input type="text" name="title" id="title" value="<%= blog.title %>" required>
+
+      <label for="content">Description:</label>
+      <textarea name="description" id="content" required><%= blog.description %></textarea>
+
+      <label for="reportedBy">Reported By (Staff ID):</label>
+      <select name="reportedBy" id="reportedBy" required>
+        <option value="">Select a Staff Member</option>
+      </select>
+
+      <label for="assignedTo">Assigned To (Staff ID):</label>
+      <select name="assignedTo" id="assignedTo" required>
+        <option value="">Select a Staff Member</option>
+      </select>
+
+      <label for="severity">Severity:</label>
+      <select name="severity" id="severity" required>
+        <option value="low" <%= blog.severity === 'low' ? 'selected' : '' %>>Low</option>
+        <option value="medium" <%= blog.severity === 'medium' ? 'selected' : '' %>>Medium</option>
+        <option value="high" <%= blog.severity === 'high' ? 'selected' : '' %>>High</option>
+      </select>
+
+      <label for="project">Project:</label>
+      <input type="text" name="project" id="project" value="<%= blog.project %>" required>
+
+      <% if (blog.image) { %>
+      <label>Current Image:</label><br>
+      <img src="/blog/<%= blog.image %>" alt="Blog Image" width="100"><br><br>
+      <% } %>
+
+      <label for="image">Choose New Image (optional):</label>
+      <input type="file" name="image" id="image">
+
+      <button type="submit">Update Blog</button>
+    </form>
+
+    <a href="/blogs" class="back-link">Back to All Blogs</a>
+  </div>
+
+  <script>
+    async function fetchStaff() {
+      const response = await fetch('/get-staff');
+      const staff = await response.json();
+
+      const reportedByDropdown = document.getElementById('reportedBy');
+      const assignedToDropdown = document.getElementById('assignedTo');
+
+      reportedByDropdown.innerHTML = '<option value="">Select a Staff Member</option>';
+      assignedToDropdown.innerHTML = '<option value="">Select a Staff Member</option>';
+
+      staff.forEach(staffMember => {
+        const option = document.createElement('option');
+        option.value = staffMember._id;
+        option.textContent = `${staffMember.firstName} ${staffMember.lastName}`;
+        reportedByDropdown.appendChild(option);
+        assignedToDropdown.appendChild(option.cloneNode(true));
+      });
+    }
+
+    async function editBug(bugId) {
+      const response = await fetch(`/display-bug/${bugId}`);
+      const bug = await response.json();
+      
+      if (!bug) {
+        alert('Bug not found');
+        return;
+      }
+      
+      document.getElementById('title').value = bug.title;
+      document.getElementById('content').value = bug.description;
+      document.getElementById('reportedBy').value = bug.reportedBy ? bug.reportedBy._id : '';
+      document.getElementById('assignedTo').value = bug.assignedTo ? bug.assignedTo._id : '';
+      document.getElementById('severity').value = bug.severity;
+      document.getElementById('project').value = bug.project;
+    }
+
+    fetchStaff();
+  </script>
+</body>
+
+</html>
