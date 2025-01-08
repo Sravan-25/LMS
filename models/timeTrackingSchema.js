@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const timesheetSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Reference to User model
-  task: { type: mongoose.Schema.Types.ObjectId, ref: 'Task' }, // Reference to Task model
+  staff: { type: mongoose.Schema.Types.ObjectId, ref: 'STAFF' },
+  task: { type: mongoose.Schema.Types.ObjectId, ref: 'Task' },
   hoursWorked: { type: Number, required: true },
   date: { type: Date, required: true },
-  description: { type: String }, // Optional description of work done
+  description: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 
