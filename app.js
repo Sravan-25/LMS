@@ -15,10 +15,10 @@ const blogRoute = require('./Routes/blog');
 const bugRoute = require('./Routes/bugRoutes');
 const projectRoute = require('./Routes/projectRoutes');
 const projectModelRouter = require('./Routes/projectModelRoutes');
-const documentRouter = require("./Routes/documentRouter");
+const documentRouter = require('./Routes/documentRouter');
 
 const app = express();
-const PORT = 5002;
+const PORT = 5022;
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -42,7 +42,8 @@ app.use('/staffData', express.static(path.join(__dirname, 'staffData')));
 // Serve blog static files
 app.use('/blog', express.static(path.join(__dirname, 'blog')));
 
-// Middleware to handle form data and JSON
+app.use('/documents', express.static(path.join(__dirname, 'documents')));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -60,7 +61,6 @@ app.use(
   })
 );
 
-// Default route
 app.get('/', (req, res) => res.redirect('/signin'));
 
 // Render sign-in page
@@ -79,7 +79,7 @@ app.get('/home', (req, res) => {
 });
 
 // Static path for uploads
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use(userrouter);

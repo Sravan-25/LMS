@@ -1,235 +1,275 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload Document</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    /* General styles */
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 50vh;
-    }
-
-    .container {
-      background-color: white;
-      padding: 40px;
-      border-radius: 8px;
+    .card {
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 800px;
-      position: relative;
+      transition: box-shadow 0.3s ease-in-out;
     }
 
-    h1 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 20px;
+    .card:hover {
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
 
-    /* Search and add button styles */
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
+    .modal-content {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .search-bar {
-      padding: 10px;
-      width: 70%;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    .btn-add {
+      transition: transform 0.3s ease;
     }
 
-    .add-btn {
-      padding: 10px 20px;
-      background-color: #5cb85c;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
+    .btn-add:active {
+      transform: scale(0.95);
     }
 
-    .add-btn:hover {
-      background-color: #4cae4c;
+    .modal.show {
+      display: block;
+      opacity: 1;
     }
-
 
     .modal {
       display: none;
       position: fixed;
-      z-index: 10;
       left: 0;
       top: 0;
       width: 100%;
-      overflow: auto;
+      height: 100%;
       background-color: rgba(0, 0, 0, 0.5);
+      transition: opacity 0.3s ease;
     }
 
     .modal-content {
       background-color: #fff;
-      position: relative;
-      margin: 5% auto;
-      padding: 30px;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
-      transform: translateY(-50px);
+      max-width: 600px;
+      margin: 5% auto;
+      padding: 30px;
+      top: 80px;
       transition: transform 0.3s ease-in-out;
     }
 
-    .modal.show .modal-content {
+    .modal-content.show {
       transform: translateY(0);
     }
 
-
-
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
+    .modal-content {
+      transform: translateY(-50px);
     }
 
-    .close:hover {
-      color: #000;
+    /* Modal-style for the edit page */
+    .modal-dialog {
+      margin-top: 50px;
+      max-width: 700px;
     }
 
-    /* Form styling */
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-group label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 15px;
-      background-color: #5cb85c;
-      color: white;
-      border: none;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .submit-btn:hover {
-      background-color: #4cae4c;
+    .modal-content {
+      border-radius: 8px;
+      padding: 30px;
     }
   </style>
 </head>
 
-<body>
-  <div class="container">
-    <h1>Document Management</h1>
-    <div class="toolbar">
-      <input type="text" class="search-bar" id="searchInput" placeholder="Search for documents...">
-      <button class="add-btn" id="openModalBtn">Add Document</button>
+<%- include("./partials/navBar") %>
+
+<body class="bg-light">
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">Document Management</h1>
+
+    <!-- Search and Add Document Container -->
+    <div class="card mb-4">
+      <div class="card-body d-flex justify-content-between">
+        <input type="text" class="form-control w-75" id="searchInput" placeholder="Search for documents..." onkeyup="searchDocuments()">
+        <button class="btn btn-success" id="openModalBtn">Add Document</button>
+      </div>
     </div>
 
-    <!-- Modal for uploading documents -->
-    <div id="uploadModal" class="modal">
+    <!-- Documents Table Container -->
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" id="documentsTable">
+            <thead class="thead-light">
+              <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Uploaded By</th>
+                <th>Project</th>
+                <th>File</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% documents.forEach(document => { %>
+              <tr>
+                <td><%= document.title %></td>
+                <td><%= document.description %></td>
+                <td><%= document.uploadedBy ? document.uploadedBy.firstName + ' ' + document.uploadedBy.lastName : 'N/A'  %></td>
+                <td><%= document.project ? document.project.name : 'N/A' %></td>
+                <td>
+                  <a class="btn btn-primary btn-sm" href="/document/<%= document._id %>" target="_blank">View</a>
+                </td>
+                <td>
+                  <a class="btn btn-warning btn-sm" href="/edit-document/<%= document._id %>">Edit</a>
+                  <a class="btn btn-danger btn-sm" href="/delete-document/<%= document._id %>">Delete</a>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for document upload -->
+  <div id="uploadModal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <span class="close" id="closeModalBtn">&times;</span>
-        <h2>Upload Document</h2>
-        <form action="/upload-document" method="POST" enctype="multipart/form-data">
+        <div class="modal-header">
+          <h5 class="modal-title">Upload Document</h5>
+          <button type="button" class="close" id="closeModalBtn" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form action="/upload-document" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+              <label for="title">Title:</label>
+              <input type="text" id="title" name="title" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="description">Description:</label>
+              <textarea id="description" name="description" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="uploadedBy">Uploaded By (Staff ID):</label>
+              <select id="uploadedBy" name="uploadedBy" class="form-control" required>
+                <option value="">Select Staff</option>
+                <% staffList.forEach(staff => { %>
+                <option value="<%= staff._id %>"><%= staff.firstName %> <%= staff.lastName %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="project">Project:</label>
+              <select id="project" name="project" class="form-control" required>
+                <option value="">Select Project</option>
+                <% projectList.forEach(project => { %>
+                <option value="<%= project._id %>"><%= project.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="file">Choose File:</label>
+              <input type="file" id="file" name="file" class="form-control-file" accept=".pdf,.xlsx,.xls,.doc,.docx" required>
+            </div>
+            <button type="submit" class="btn btn-success btn-block">Upload Document</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update Form Page (only shown when editing) -->
+  <% if (isEditing) { %>
+  <div class="modal-dialog modal-lg mx-auto" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Document</h5>
+         <button type="button" class="close" id="closeModalBtn" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body">
+        <form action="/edit-document/<%= document._id %>" method="POST" enctype="multipart/form-data">
           <div class="form-group">
             <label for="title">Title:</label>
-            <input type="text" id="title" name="title" required>
+            <input type="text" id="title" name="title" class="form-control" value="<%= document.title %>" required>
           </div>
 
           <div class="form-group">
             <label for="description">Description:</label>
-            <textarea id="description" name="description" placeholder="Enter document description..."></textarea>
+            <textarea id="description" name="description" class="form-control" required><%= document.description %></textarea>
           </div>
 
           <div class="form-group">
-            <label for="uploadedBy">Uploaded By (Staff ID):</label>
-            <select id="createdBy" name="uploadedBy" required>
-              <option value="">Select Staff</option>
+            <label for="uploadedBy">Assigned Staff:</label>
+            <select id="uploadedBy" name="uploadedBy" class="form-control" required>
               <% staffList.forEach(staff => { %>
-              <option value="<%= staff._id %>"><%= staff.firstName %> <%= staff.lastName %></option>
+              <option value="<%= staff._id %>" <%= staff._id == document.uploadedBy ? 'selected' : '' %>><%= staff.firstName %> <%= staff.lastName %></option>
               <% }) %>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="project">Project:</label>
-            <select id="tasks" name="project" required>
-              <option value="">Select Project</option>
+            <label for="project">Assigned Project:</label>
+            <select id="project" name="project" class="form-control" required>
               <% projectList.forEach(project => { %>
-              <option value="<%= project._id %>"><%= project.name %></option>
+              <option value="<%= project._id %>" <%= project._id == document.project ? 'selected' : '' %>><%= project.name %></option>
               <% }) %>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="file">Choose File (PDF, Excel, Word):</label>
-            <input type="file" id="file" name="file" accept=".pdf,.xlsx,.xls,.doc,.docx" required>
+            <label for="file">Upload New File:</label>
+            <input type="file" id="file" name="file" class="form-control-file">
           </div>
 
-          <button type="submit" class="submit-btn">Upload Document</button>
+          <button type="submit" class="btn btn-primary btn-block">Update Document</button>
         </form>
       </div>
     </div>
   </div>
+  <% } %>
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.9/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
   <script>
     const modal = document.getElementById("uploadModal");
     const openModalBtn = document.getElementById("openModalBtn");
     const closeModalBtn = document.getElementById("closeModalBtn");
 
-    openModalBtn.onclick = () => {
-      modal.style.display = "block";
-      setTimeout(() => {
-        modal.classList.add('show');
-      }, 50);
-    };
-
-    closeModalBtn.onclick = () => {
-      modal.classList.remove('show');
-      setTimeout(() => {
-        modal.style.display = "none";
-      }, 300);
-    };
+    // Open modal when "Add Document" button is clicked
     openModalBtn.onclick = () => {
       modal.style.display = "block";
     };
 
+    // Close modal when "Close" button is clicked
     closeModalBtn.onclick = () => {
       modal.style.display = "none";
     };
 
+    // Close modal if the user clicks outside of the modal
     window.onclick = (event) => {
       if (event.target === modal) {
         modal.style.display = "none";
       }
     };
+
+    // Document search function
+    function searchDocuments() {
+      const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+      const rows = document.querySelectorAll("#documentsTable tbody tr");
+
+      rows.forEach(row => {
+        const title = row.cells[0].textContent.toLowerCase();
+        const description = row.cells[1].textContent.toLowerCase();
+
+        if (title.includes(searchTerm) || description.includes(searchTerm)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    }
   </script>
 </body>
 
