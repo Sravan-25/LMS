@@ -5,341 +5,292 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bug Tracker</title>
-  <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-</head>
-
-<body>
-  <%- include("./partials/navBar") %>
-  <div class="container">
-    <h1>Bug Tracker</h1>
-
-    <!-- Button to trigger Add Bug Modal -->
-    <button class="btn-add" id="addBugBtn">Add Bug</button>
-
-    <!-- Add Bug Modal -->
-    <div id="addBugModal" class="modal">
-      <div class="modal-content">
-        <span class="close-btn" id="closeModal">&times;</span>
-        <h2>Add Bug</h2>
-        <form id="bugForm">
-          <label for="title">Title:</label>
-          <input type="text" id="title" name="title" required placeholder="Enter bug title">
-
-          <label for="description">Description:</label>
-          <textarea id="description" name="description" required placeholder="Enter bug description"></textarea>
-
-          <label for="reportedBy">Reported By:</label>
-          <select id="reportedBy" name="reportedBy" required>
-            <option value="">Select a Staff Member</option>
-          </select>
-
-          <label for="assignedTo">Assigned To:</label>
-          <select id="assignedTo" name="assignedTo" required>
-            <option value="">Select a Staff Member</option>
-          </select>
-
-          <label for="severity">Severity:</label>
-          <select id="severity" name="severity" required>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-          </select>
-
-          <label for="project">Project:</label>
-          <input type="text" id="project" name="project" required placeholder="Enter project name">
-
-          <button type="submit" class="submit-btn">Add Bug</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Display Bugs -->
-    <div class="bug-list">
-      <h2>Bugs</h2>
-      <table id="bugsTable">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Reported By</th>
-            <th>Assigned To</th>
-            <th>Severity</th>
-            <th>Project</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="bugs"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <script>
-    // Fetch and display staff members to populate dropdowns
-    async function fetchStaff() {
-      const response = await fetch('/get-staff'); // Fetch staff data
-      const staff = await response.json();
-
-      const reportedByDropdown = document.getElementById('reportedBy');
-      const assignedToDropdown = document.getElementById('assignedTo');
-
-      // Clear existing options in the dropdowns
-      reportedByDropdown.innerHTML = '<option value="">Select a Staff Member</option>';
-      assignedToDropdown.innerHTML = '<option value="">Select a Staff Member</option>';
-
-      staff.forEach(staffMember => {
-        const option = document.createElement('option');
-        option.value = staffMember._id; // Use the staff ID as the value
-        option.textContent = `${staffMember.firstName} ${staffMember.lastName}`;
-
-        // Add option to both dropdowns
-        reportedByDropdown.appendChild(option);
-        assignedToDropdown.appendChild(option.cloneNode(true));
-      });
-    }
-
-    // Fetch and display bugs
-    async function fetchBugs() {
-      const response = await fetch('/display-bugs');
-      const bugs = await response.json();
-      console.log('Fetched Bugs:', bugs); // Log the bugs data to check the structure
-
-      const bugContainer = document.getElementById('bugs');
-      bugContainer.innerHTML = '';
-
-      bugs.forEach((bug, index) => {
-        const bugItem = document.createElement('tr');
-        bugItem.classList.add('bug-item');
-
-        // Add class for severity
-        let severityClass = '';
-        switch (bug.severity) {
-          case 'Low':
-            severityClass = 'severity-low';
-            break;
-          case 'Medium':
-            severityClass = 'severity-medium';
-            break;
-          case 'High':
-            severityClass = 'severity-high';
-            break;
-        }
-
-        bugItem.innerHTML = `
-      <td>${bug.title}</td>
-      <td>${bug.description}</td>
-      <td>${bug.reportedBy ? bug.reportedBy.firstName + ' ' + bug.reportedBy.lastName : 'N/A'}</td>
-      <td>${bug.assignedTo ? bug.assignedTo.firstName + ' ' + bug.assignedTo.lastName : 'N/A'}</td>
-      <td class="${severityClass}">${bug.severity}</td>
-      <td>${bug.project}</td>
-      <td>
-        <button class="btn-edit" onclick="editBug('${bug._id}')"><i class="fas fa-edit"></i></button>
-        <button class="btn-delete" onclick="deleteBug('${bug._id}')"><i class="fas fa-trash-alt"></i></button>
-      </td>
-    `;
-        bugItem.classList.toggle('even', index % 2 === 0); // Alternate row styling
-        bugContainer.appendChild(bugItem);
-      });
-    }
-
-    function closeModal() {
-      document.getElementById('addBugModal').style.display = 'none';
-    }
-
-    fetchStaff();
-    fetchBugs();
-  </script>
-
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      width: 80%;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-
-    .btn-add {
-      display: block;
-      margin: 20px auto;
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 5px;
-      transition: background-color 0.3s;
-    }
-
-    .btn-add:hover {
-      background-color: #45a049;
-    }
-
-    /* Modal styles */
-    .modal {
-      display: none;
+    /* Popup form styling */
+    .form-popup {
       position: fixed;
-      top: 0;
-      left: 0;
+      top: -100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ffffff;
+      padding: 20px;
+      border: 1px solid #ccc;
+      box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
       width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
+      max-width: 500px;
       z-index: 1000;
-      /* Ensure modal appears above other content */
-    }
-
-    .modal-content {
-      background-color: white;
-      padding: 30px;
-      width: 400px;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      position: relative;
+      opacity: 0;
+      visibility: hidden;
+      transition: top 0.3s ease, opacity 0.3s ease, visibility 0s 0.3s;
     }
 
-    .close-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 24px;
-      cursor: pointer;
+    .form-popup.active {
+      visibility: visible;
+      top: 3%;
+      opacity: 1;
+      transition: top 0.3s ease, opacity 0.3s ease;
     }
 
-    /* Table Styles */
-    table {
-      width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
-    }
-
-    th,
-    td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-
-    th {
-      background-color: #f4f4f4;
-      color: #333;
-    }
-
-    tr:hover {
-      background-color: #f1f1f1;
-    }
-
-    .btn-edit,
-    .btn-delete {
-      padding: 6px 12px;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-
-    .btn-edit {
-      color: #007bff;
-    }
-
-    .btn-delete {
-      color: #dc3545;
-    }
-
-    .btn-edit:hover {
-      color: #007bff;
-    }
-
-    .btn-delete:hover {
-      color: #e03e32;
-    }
-
-    .severity-low {
+    .severity.low {
       background-color: #d4edda;
       color: #155724;
     }
 
-    .severity-medium {
+    .severity.medium {
       background-color: #fff3cd;
       color: #856404;
     }
 
-    .severity-high {
+    .severity.high {
       background-color: #f8d7da;
       color: #721c24;
     }
 
-    .even {
-      background-color: #f9f9f9;
+    /* Table container for scroll */
+    .bug-container .table-container {
+      max-height: 500px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      margin-top: 1rem;
     }
 
-    /* General Styles */
-    input,
-    textarea,
-    select {
-      width: 100%;
-      padding: 12px;
-      margin-top: 5px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 16px;
-      box-sizing: border-box;
+    .table th,
+    .table td {
+      white-space: nowrap;
     }
 
-    textarea {
-      resize: vertical;
-      height: 100px;
+    /* Responsive popup form */
+    @media (max-width: 768px) {
+      .form-popup {
+        width: 90%;
+      }
     }
 
-    /* Form Container */
-    .modal-content form {
-      display: flex;
-      flex-direction: column;
-      gap: 0px;
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
     }
 
-    form {
-      margin: 0;
-      padding: 0;
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
     }
 
-    /* Label Styling */
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 5px;
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 10px;
     }
 
-    .submit-btn {
-      background-color: #4CAF50;
-      color: white;
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    .filter-container {
+      width: 150px;
+    }
+
+    .table th,
+    .table td {
       border: none;
-      padding: 12px;
-      width: 100%;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 5px;
+      border-bottom: 1px solid #ddd;
     }
 
-    .submit-btn:hover {
-      background-color: #45a049;
+    /* Fixed Table Header */
+    .table-container {
+      position: relative;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .table thead {
+      position: sticky;
+      top: 0;
+      background-color: #f9f9f9;
+      z-index: 1;
     }
   </style>
+</head>
 
+<body>
+  <%- include("./partials/navBar") %>
+  <div class="container mt-4">
+    <div class="d-flex justify-content-between mb-3">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-search search-icon" id="searchIcon" style="cursor: pointer;"></i>
+        <input type="text" id="search" class="form-control d-none" placeholder="Search bugs...">
+      </div>
+      <button id="addBugBtn" class="btn btn-primary">Add Bug</button>
+    </div>
+
+    <div class="form-popup" id="taskForm">
+      <h2>Create New Bug</h2>
+      <form action="/create-bug" method="POST">
+        <!-- Title and Severity (Side by Side) -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+          </div>
+          <div class="col-md-6">
+            <label for="severity" class="form-label">Severity</label>
+            <select class="form-select" id="severity" name="severity">
+              <option value="Low">Low</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Assign To and Reported By (Side by Side) -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="assignedTo" class="form-label">Assign To</label>
+            <select class="form-select" id="assignedTo" name="assignedTo" required>
+              <option value="">Select Staff</option>
+              <% staff.forEach(person => { %>
+              <option value="<%= person._id %>"><%= person.firstName %> <%= person.lastName %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="reportedBy" class="form-label">Reported By</label>
+            <select class="form-select" id="reportedBy" name="reportedBy" required>
+              <option value="">Select Staff</option>
+              <% staff.forEach(person => { %>
+              <option value="<%= person._id %>"><%= person.firstName %> <%= person.lastName %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <!-- Status and Project (Side by Side) -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status" name="status">
+              <option value="Open">Open</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="project" class="form-label">Project</label>
+            <select class="form-select" id="project" name="project" required>
+              <option value="">Select Project</option>
+              <% project.forEach(proj => { %>
+              <option value="<%= proj._id %>"><%= proj.name %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" name="description"></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-success">Create Task</button>
+          <button type="button" id="closeFormBtn" class="btn btn-secondary">Close</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="bug-container">
+      <div class="mb-3 filter-container">
+        <label for="severityFilter" class="form-label">Filter by Severity:</label>
+        <select class="form-select" id="severityFilter">
+          <option value="">All</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table class="table table-bordered table-striped" id="bugTable">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Assigned To</th>
+              <th>Reported By</th>
+              <th>Severity</th>
+              <th>Status</th>
+              <th>Project</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% bugs.forEach(bug => { %>
+            <tr>
+              <td><%= bug.title %></td>
+              <td><%= bug.description %></td>
+              <td><%= bug.assignedTo ? bug.assignedTo.firstName + ' ' + bug.assignedTo.lastName : 'Unassigned' %></td>
+              <td><%= bug.reportedBy ? bug.reportedBy.firstName + ' ' + bug.reportedBy.lastName : 'Not Reported' %></td>
+              <td class="severity <%= bug.severity.toLowerCase() %>"><%= bug.severity %></td>
+              <td><%= bug.status %></td>
+              <td><%= bug.project ? bug.project.name : 'No Project' %></td>
+              <td>
+                <a href="/edit-bug-page/<%= bug._id %>" class="btn btn-danger btn-sm">edit</a>
+                <a href="/delete-bug/<%= bug._id %>" class="btn btn-danger btn-sm">Delete</a>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    // Open and close the Add Bug form
+    const addBugBtn = document.getElementById('addBugBtn');
+    const closeFormBtn = document.getElementById('closeFormBtn');
+    const taskForm = document.getElementById('taskForm');
+
+    addBugBtn.addEventListener('click', () => {
+      taskForm.classList.add('active');
+    });
+
+    closeFormBtn.addEventListener('click', () => {
+      taskForm.classList.remove('active');
+    });
+
+    const searchIcon = document.getElementById('searchIcon');
+    const searchInput = document.getElementById('search');
+    searchIcon.addEventListener('click', () => {
+      searchInput.classList.toggle('d-none');
+      searchInput.focus();
+    });
+
+    searchInput.addEventListener('input', () => {
+      const filterText = searchInput.value.toLowerCase();
+      const rows = document.querySelectorAll('#bugTable tbody tr');
+      rows.forEach(row => {
+        const title = row.cells[0].textContent.toLowerCase();
+        const description = row.cells[1].textContent.toLowerCase();
+        row.style.display = title.includes(filterText) || description.includes(filterText) ? '' : 'none';
+      });
+    });
+
+    // Filter functionality (stays the same)
+    const severityFilter = document.getElementById("severityFilter");
+    severityFilter.addEventListener("change", function() {
+      const selectedSeverity = severityFilter.value.toLowerCase();
+      const rows = document.querySelectorAll("#bugTable tbody tr");
+
+      rows.forEach(row => {
+        const severity = row.querySelector(".severity").textContent.trim().toLowerCase();
+        row.style.display = (selectedSeverity === "" || severity === selectedSeverity) ? "" : "none";
+      });
+    });
+  </script>
 </body>
 
 </html>
+

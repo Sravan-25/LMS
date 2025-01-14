@@ -63,10 +63,76 @@
       display: flex;
       justify-content: space-between;
     }
+
+    /* Styling for navbar dropdown buttons */
+    .navbar .dropdown .btn {
+      background-color: #6c757d;
+      /* Grey color for dropdown buttons */
+      color: white;
+      border-radius: 5px;
+      padding: 10px 15px;
+      transition: background-color 0.3s ease;
+    }
+
+    .navbar .dropdown .btn:hover {
+      background-color: #5a6268;
+      /* Darker grey on hover */
+    }
+
+    .navbar .dropdown-menu {
+      border-radius: 5px;
+    }
+
+    .navbar .dropdown-menu button {
+      background-color: transparent;
+      color: #6c757d;
+      border: none;
+      width: 100%;
+      text-align: left;
+      padding: 10px 15px;
+    }
+
+    .navbar .dropdown-menu button:hover {
+      background-color: #f8f9fa;
+    }
   </style>
 </head>
 
 <body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">IS-Kool</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link active" href="/home"><i class="fas fa-house"></i> Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/users"><i class="fas fa-users"></i> Users</a></li>
+          <li class="nav-item"><a class="nav-link" href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+        </ul>
+        <div class="dropdown me-3">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-plus"></i> New
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+            <li><button class="dropdown-item" onclick="navigateToRoute('/bug-page')">Bugs Data</button></li>
+            <li><button class="dropdown-item" onclick="navigateToRoute('/project-page')">Projects</button></li>
+            <li><button class="dropdown-item" onclick="navigateToRoute('/project-model')">Project Model</button></li>
+            <li><button class="dropdown-item" onclick="navigateToRoute('/school-data')">Schools Data</button></li>
+            <li><button class="dropdown-item" onclick="navigateToRoute('/staff-info')">Staff Info</button></li>
+            <li><button class="dropdown-item" onclick="navigateToRoute('/document-page')">Business Docs</button></li>
+            <li><button class="dropdown-item" onclick="navigateToRoute('/admins-data')">Admins Data</button></li>
+            <li><button class="dropdown-item" onclick="navigateToRoute('/is-kool-production')">Is-Kool Production</button></li>
+            <li><button class="dropdown-item" onclick="navigateToRoute('/doc-it-production')">Doc-it Production</button></li>
+          </ul>
+        </div>
+        <a href="/logout" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </div>
+    </div>
+  </nav>
+
   <div class="container">
     <div class="search-bar-container">
       <div class="d-flex justify-content-between">
@@ -124,7 +190,7 @@
                   </button>
 
                   <!-- Delete Button -->
-                  <form action="/delete-project/<%= project._id %>" method="GET" style="display:inline;" >
+                  <form action="/delete-project/<%= project._id %>" method="GET" style="display:inline;">
                     <button type="submit" class="btn btn-danger btn-sm">
                       <i class="bi bi-trash"></i> Delete
                     </button>
@@ -273,6 +339,10 @@
           row.style.display = 'none';
         }
       });
+    }
+
+    function navigateToRoute(route) {
+      window.location.href = route;
     }
   </script>
 </body>

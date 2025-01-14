@@ -1,122 +1,172 @@
 const Staff = require('../models/staffData');
 const Bug = require('../models/bugSchema');
-const mongoose = require('mongoose');
+const Project = require('../models/projectmodel');
 
-class BugController {
-  static async createBug(req, res) {
-    const { title, description, reportedBy, assignedTo, severity, project } =
-      req.body;
+exports.renderBugPage = async (req, res) => {
+  try {
+    const staff = await Staff.find({}).lean();
+    const project = await Project.find({}).lean();
+    const bugs = await Bug.find({})
+      .populate('reportedBy', 'firstName lastName')
+      .populate('assignedTo', 'firstName lastName')
+      .populate('project', 'name')
+      .lean();
 
-    try {
-      const reportedByStaff = await Staff.findById(reportedBy);
-      const assignedToStaff = await Staff.findById(assignedTo);
+    let bug = null;
 
-      if (!reportedByStaff || !assignedToStaff) {
-        return res.status(400).json({
-          message: 'Error: Reported By or Assigned To staff member not found.',
-        });
+    if (req.params.id) {
+      bug = await Bug.findById(req.params.id).lean();
+      if (!bug) {
+        return res.status(404).send('Bug not found');
       }
+    }
 
-      const bug = new Bug({
-        title,
-        description,
-        reportedBy: reportedByStaff._id,
-        assignedTo: assignedToStaff._id,
-        severity,
-        project,
+    res.render('bug', { staff, project, bugs, bug });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.createBugData = async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      reportedBy,
+      assignedTo,
+      status,
+      severity,
+      project,
+    } = req.body;
+
+    const reportedByStaff = await Staff.findById(reportedBy);
+    const assignedToStaff = await Staff.findById(assignedTo);
+
+    if (!reportedByStaff || !assignedToStaff) {
+      return res.status(400).json({
+        message: 'Error: Invalid staff members.',
       });
-
-      await bug.save();
-      res.status(201).json({ message: 'Bug created successfully', bug });
-    } catch (err) {
-      console.error('Error creating bug:', err.message);
-      res
-        .status(400)
-        .json({ message: 'Error creating bug', error: err.message });
     }
-  }
 
-  static async getBugs(req, res) {
-    try {
-      const bugs = await Bug.find()
-        .populate('reportedBy', 'firstName lastName')
-        .populate('assignedTo', 'firstName lastName');
-
-      res.json(bugs);
-    } catch (err) {
-      res
-        .status(500)
-        .json({ message: 'Error fetching bugs', error: err.message });
+    const projectData = await Project.findById(project);
+    if (!projectData) {
+      return res.status(400).json({
+        message: 'Error: Invalid project.',
+      });
     }
+
+    const bugData = new Bug({
+      title,
+      description,
+      reportedBy: reportedByStaff._id,
+      assignedTo: assignedToStaff._id,
+      status,
+      severity,
+      project: projectData._id,
+    });
+    await bugData.save();
+
+    res.redirect('/Bug-Page');
+  } catch (error) {
+    console.error('Error creating Bug:', error);
+    res.status(500).json({ error: error.message });
   }
+};
 
-  static async getBugById(req, res) {
-    const { id } = req.params.id;
+exports.getAllBugs = async (req, res) => {
+  try {
+    const bugs = await Bug.find({})
+      .populate('reportedBy', 'firstName lastName')
+      .populate('assignedTo', 'firstName lastName')
+      .populate('project', 'name')
+      .lean();
 
-    try {
-      const bug = await Bug.findById(id)
-        .populate('reportedBy')
-        .populate('assignedTo');
-      if (!bug) return res.status(404).json({ message: 'Bug not found' });
+    res.render('bug', { bugs });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+};
 
-      res.json('bug', { bug });
-    } catch (err) {
-      res
-        .status(500)
-        .json({ message: 'Error fetching bug', error: err.message });
+exports.deleteBug = async (req, res) => {
+  try {
+    const bugs = await Bug.findByIdAndDelete(req.params.id);
+    res.redirect('/Bug-Page');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.updateBug = async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      reportedBy,
+      assignedTo,
+      status,
+      severity,
+      project,
+    } = req.body;
+
+    const bug = await Bug.findById(req.params.id);
+
+    if (!bug) {
+      return res.status(404).send('Bug not found');
     }
-  }
 
-  static async updateBug(req, res) {
-    const { id } = req.params;
-    const { title, description, reportedBy, assignedTo, severity, status } =
-      req.body;
+    const reportedByStaff = await Staff.findById(reportedBy);
+    const assignedToStaff = await Staff.findById(assignedTo);
+    const projectData = await Project.findById(project);
 
-    try {
-      const bug = await Bug.findByIdAndUpdate(
-        id,
-        {
-          title,
-          description,
-          reportedBy, // Directly use the ID
-          assignedTo, // Directly use the ID
-          severity,
-          status,
-        },
-        { new: true }
-      );
-      res.json(bug);
-    } catch (err) {
-      res
-        .status(500)
-        .json({ message: 'Error updating bug', error: err.message });
+    if (!reportedByStaff || !assignedToStaff) {
+      return res.status(400).json({
+        message: 'Error: Invalid staff members.',
+      });
     }
-  }
 
-  static async deleteBug(req, res) {
-    try {
-      await Bug.findByIdAndDelete(req.params.id);
-      res.redirect('/bug-page');
-    } catch (err) {
-      console.log(err);
-      res.status(500).send('server Error ');
+    if (!projectData) {
+      return res.status(400).json({
+        message: 'Error: Invalid project.',
+      });
     }
-  }
 
-  static async renderBugPage(req, res) {
-    return res.render('bug');
-  }
+    bug.title = title;
+    bug.description = description;
+    bug.reportedBy = reportedByStaff._id;
+    bug.assignedTo = assignedToStaff._id;
+    bug.status = status;
+    bug.severity = severity;
+    bug.project = projectData._id;
 
-  static async getStaff(req, res) {
-    try {
-      const staffMembers = await Staff.find();
-      res.json(staffMembers);
-    } catch (err) {
-      res
-        .status(500)
-        .json({ message: 'Error fetching staff members', error: err.message });
+    // Save the updated bug
+    await bug.save();
+
+    // Redirect back to the Bug Page
+    res.redirect('/Bug-Page');
+  } catch (err) {
+    console.error('Error updating bug:', err);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.renderEditBugPage = async (req, res) => {
+  try {
+    const bug = await Bug.findById(req.params.id)
+      .populate('reportedBy', 'firstName lastName')
+      .populate('assignedTo', 'firstName lastName')
+      .populate('project', 'name')
+      .lean();
+    if (!bug) {
+      return res.status(404).send('Bug not found');
     }
+    const staff = await Staff.find({}).lean();
+    const projects = await Project.find({}).lean();
+    res.render('edit-bug', { bug, staff, projects }); // This renders the form to edit the bug
+  } catch (err) {
+    console.error('Error fetching bug for edit:', err);
+    res.status(500).send('Server Error');
   }
-}
-
-module.exports = BugController;
+};

@@ -4,176 +4,97 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edit Blog</title>
+  <title>Bug Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #F4F4F9;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      color: #333;
-    }
 
-    h1 {
-      color: #4A3C56;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .container {
-      background-color: #FFFFFF;
-      border-radius: 8px;
-      padding: 40px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 600px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 16px;
-      color: #5F5F5F;
-    }
-
-    input,
-    textarea,
-    button,
-    select {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0 16px;
-      border-radius: 5px;
-      border: 1px solid #DDDDDD;
-      box-sizing: border-box;
-      font-size: 16px;
-    }
-
-    input[type="file"] {
-      padding: 6px;
-    }
-
-    textarea {
-      height: 150px;
-      resize: vertical;
-    }
-
-    button {
-      background-color: #5D4E72;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      border: none;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #3C2A4A;
-    }
-
-    .back-link {
-      display: block;
-      text-align: center;
-      margin-top: 20px;
-      color: #5D4E72;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    .back-link:hover {
-      color: #3C2A4A;
-    }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>Edit Blog</h1>
-    <form action="/edit/<%= blog._id %>" method="POST" enctype="multipart/form-data">
-      <label for="title">Title:</label>
-      <input type="text" name="title" id="title" value="<%= blog.title %>" required>
+  <%- include("./partials/navBar") %>
 
-      <label for="content">Description:</label>
-      <textarea name="description" id="content" required><%= blog.description %></textarea>
+  <div class="container mt-5" id="editBugForm">
+    <% if (bug) { %>
+    <form action="/update-bug/<%= bug._id %>" method="POST" class="row g-3">
+      <!-- Title -->
+      <div class="col-md-6">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" id="title" name="title" class="form-control" value="<%= bug.title %>" required />
+      </div>
 
-      <label for="reportedBy">Reported By (Staff ID):</label>
-      <select name="reportedBy" id="reportedBy" required>
-        <option value="">Select a Staff Member</option>
-      </select>
+      <!-- Severity -->
+      <div class="col-md-6">
+        <label for="severity" class="form-label">Severity</label>
+        <select id="severity" name="severity" class="form-select">
+          <option value="Low" <%= bug.severity === 'Low' ? 'selected' : '' %>>Low</option>
+          <option value="Medium" <%= bug.severity === 'Medium' ? 'selected' : '' %>>Medium</option>
+          <option value="High" <%= bug.severity === 'High' ? 'selected' : '' %>>High</option>
+        </select>
+      </div>
 
-      <label for="assignedTo">Assigned To (Staff ID):</label>
-      <select name="assignedTo" id="assignedTo" required>
-        <option value="">Select a Staff Member</option>
-      </select>
+      <!-- Assigned To -->
+      <div class="col-md-6">
+        <label for="assignedTo" class="form-label">Assigned To</label>
+        <select id="assignedTo" name="assignedTo" class="form-select" required>
+          <% staff.forEach(person => { %>
+          <option value="<%= person._id %>" <%= bug.assignedTo == person._id ? 'selected' : '' %>>
+            <%= person.firstName %> <%= person.lastName %>
+          </option>
+          <% }) %>
+        </select>
+      </div>
 
-      <label for="severity">Severity:</label>
-      <select name="severity" id="severity" required>
-        <option value="low" <%= blog.severity === 'low' ? 'selected' : '' %>>Low</option>
-        <option value="medium" <%= blog.severity === 'medium' ? 'selected' : '' %>>Medium</option>
-        <option value="high" <%= blog.severity === 'high' ? 'selected' : '' %>>High</option>
-      </select>
+      <!-- Reported By -->
+      <div class="col-md-6">
+        <label for="reportedBy" class="form-label">Reported By</label>
+        <select id="reportedBy" name="reportedBy" class="form-select" required>
+          <% staff.forEach(person => { %>
+          <option value="<%= person._id %>" <%= bug.reportedBy == person._id ? 'selected' : '' %>>
+            <%= person.firstName %> <%= person.lastName %>
+          </option>
+          <% }) %>
+        </select>
+      </div>
 
-      <label for="project">Project:</label>
-      <input type="text" name="project" id="project" value="<%= blog.project %>" required>
+      <!-- Status -->
+      <div class="col-md-6">
+        <label for="status" class="form-label">Status</label>
+        <select id="status" name="status" class="form-select">
+          <option value="Open" <%= bug.status === 'Open' ? 'selected' : '' %>>Open</option>
+          <option value="In Progress" <%= bug.status === 'In Progress' ? 'selected' : '' %>>In Progress</option>
+          <option value="Resolved" <%= bug.status === 'Resolved' ? 'selected' : '' %>>Resolved</option>
+        </select>
+      </div>
 
-      <% if (blog.image) { %>
-      <label>Current Image:</label><br>
-      <img src="/blog/<%= blog.image %>" alt="Blog Image" width="100"><br><br>
-      <% } %>
+      <!-- Project -->
+      <div class="col-md-6">
+        <label for="project" class="form-label">Project</label>
+        <select id="project" name="project" class="form-select" required>
+          <% projects.forEach(project => { %>
+          <option value="<%= project._id %>" <%= bug.project == project._id ? 'selected' : '' %>>
+            <%= project.name %>
+          </option>
+          <% }) %>
+        </select>
+      </div>
 
-      <label for="image">Choose New Image (optional):</label>
-      <input type="file" name="image" id="image">
+      <!-- Description -->
+      <div class="col-12">
+        <label for="description" class="form-label">Description</label>
+        <textarea id="description" name="description" class="form-control" rows="4" required><%= bug.description %></textarea>
+      </div>
 
-      <button type="submit">Update Blog</button>
+      <!-- Buttons -->
+      <div class="col-12 d-flex justify-content-between">
+        <button type="submit" class="btn btn-primary">Update Bug</button>
+        <!-- <button type="button" id="closeBugFormBtn" class="btn btn-secondary">Close</button> -->
+      </div>
     </form>
-
-    <a href="/blogs" class="back-link">Back to All Blogs</a>
+    <% } %>
   </div>
 
-  <script>
-    async function fetchStaff() {
-      const response = await fetch('/get-staff');
-      const staff = await response.json();
 
-      const reportedByDropdown = document.getElementById('reportedBy');
-      const assignedToDropdown = document.getElementById('assignedTo');
-
-      reportedByDropdown.innerHTML = '<option value="">Select a Staff Member</option>';
-      assignedToDropdown.innerHTML = '<option value="">Select a Staff Member</option>';
-
-      staff.forEach(staffMember => {
-        const option = document.createElement('option');
-        option.value = staffMember._id;
-        option.textContent = `${staffMember.firstName} ${staffMember.lastName}`;
-        reportedByDropdown.appendChild(option);
-        assignedToDropdown.appendChild(option.cloneNode(true));
-      });
-    }
-
-    async function editBug(bugId) {
-      const response = await fetch(`/display-bug/${bugId}`);
-      const bug = await response.json();
-      
-      if (!bug) {
-        alert('Bug not found');
-        return;
-      }
-      
-      document.getElementById('title').value = bug.title;
-      document.getElementById('content').value = bug.description;
-      document.getElementById('reportedBy').value = bug.reportedBy ? bug.reportedBy._id : '';
-      document.getElementById('assignedTo').value = bug.assignedTo ? bug.assignedTo._id : '';
-      document.getElementById('severity').value = bug.severity;
-      document.getElementById('project').value = bug.project;
-    }
-
-    fetchStaff();
-  </script>
 </body>
 
 </html>

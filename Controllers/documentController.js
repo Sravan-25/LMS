@@ -77,10 +77,13 @@ exports.uploadDocument = async (req, res) => {
     const staff = await Staff.findById(uploadedBy);
     const projectData = await Project.findById(project);
 
-    if (!staff || !projectData) {
-      return res.status(400).json({ error: 'Invalid staff or project ID' });
+    if (!staff) {
+      return res.status(400).json({ error: 'Invalid staff' });
     }
 
+    if (!projectData) {
+      return res.status(400).json({ error: 'Invalid project ID' });
+    }
     const newDocument = new Document({
       title,
       description,
@@ -175,13 +178,12 @@ exports.deleteDocs = async (req, res) => {
 
 exports.updateOrCreateDocument = async (req, res) => {
   const { title, description, uploadedBy, project } = req.body;
-  const documentId = req.params.documentId; // Get the document ID from URL if editing
+  const documentId = req.params.documentId;
   const fileName = req.file ? req.file.filename : '';
 
   try {
     let document;
     if (documentId) {
-      // If documentId is provided, update the existing document
       document = await Document.findById(documentId);
       if (!document) {
         return res.status(404).send('Document Not Found');

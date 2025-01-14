@@ -33,20 +33,33 @@ exports.createProjectSchema = async (req, res) => {
       status,
     } = req.body;
 
-    const memberIds = members
-      .split(',')
-      .map((id) => new mongoose.Types.ObjectId(id));
-    const taskIds = tasks
-      .split(',')
-      .map((id) => new mongoose.Types.ObjectId(id));
+    if (!members || !tasks) {
+      return res
+        .status(400)
+        .json({ message: 'Error: Members and tasks are required.' });
+    }
+
+    const memberIds = members.split(',').map((id) => {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new Error(`Invalid member ID: ${id}`);
+      }
+      return new mongoose.Types.ObjectId(id);
+    });
+
+    const taskIds = tasks.split(',').map((id) => {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new Error(`Invalid task ID: ${id}`);
+      }
+      return new mongoose.Types.ObjectId(id);
+    });
 
     const createdByStaff = await Staff.findById(createdBy);
     const membersByStaff = await Staff.find({ _id: { $in: memberIds } });
-    const tasksAssigning = await Task.find({ _id: { $in: taskIds } }); 
+    const tasksAssigning = await Task.find({ _id: { $in: taskIds } });
 
     if (!createdByStaff) {
       return res.status(400).json({
-        message: 'Error: Assigned To staff member not found.',
+        message: 'Error: Assigned to staff member not found.',
       });
     }
 
@@ -62,22 +75,26 @@ exports.createProjectSchema = async (req, res) => {
       });
     }
 
+    // Create a new project
     const newProject = new Project({
       name,
       description,
       createdBy: createdByStaff._id,
       members: membersByStaff.map((member) => member._id),
-      tasks: tasksAssigning.map((task) => task._id), 
+      tasks: tasksAssigning.map((task) => task._id),
       startDate,
       endDate,
       status,
     });
 
+    // Save the project
     await newProject.save();
+
+    // Redirect or return a success response
     res.redirect('/project-model');
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server Error');
+    res.status(500).send({ message: `Server Error: ${err.message}` });
   }
 };
 
@@ -109,19 +126,42 @@ exports.updateProject = async (req, res) => {
       status,
     } = req.body;
 
+    // Find the project to update
     const project = await Project.findByIdAndUpdate(req.params.id);
 
     if (!project) {
       return res.status(404).send('Project not found');
     }
 
-    const createdByStaff = await Staff.findById(createdBy);
-    const membersByStaff = await Staff.find({ _id: { $in: members } });
-    const tasksAssigning = await Task.find({ _id: { $in: tasks } });
+    // Validate and convert member IDs
+    const memberIds = members
+      .split(',')
+      .map((id) => {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+          throw new Error(`Invalid member ID: ${id}`);
+        }
+        return new mongoose.Types.ObjectId(id);
+      });
 
+    // Validate and convert task IDs
+    const taskIds = tasks
+      .split(',')
+      .map((id) => {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+          throw new Error(`Invalid task ID: ${id}`);
+        }
+        return new mongoose.Types.ObjectId(id);
+      });
+
+    // Fetch the related staff and tasks
+    const createdByStaff = await Staff.findById(createdBy);
+    const membersByStaff = await Staff.find({ _id: { $in: memberIds } });
+    const tasksAssigning = await Task.find({ _id: { $in: taskIds } });
+
+    // Handle errors if any staff or task is not found
     if (!createdByStaff) {
       return res.status(400).json({
-        message: 'Error: Assigned To staff member not found.',
+        message: 'Error: Assigned to staff member not found.',
       });
     }
 
@@ -137,6 +177,7 @@ exports.updateProject = async (req, res) => {
       });
     }
 
+    // Update project with new values
     project.name = name;
     project.description = description;
     project.createdBy = createdByStaff._id;
@@ -146,12 +187,14 @@ exports.updateProject = async (req, res) => {
     project.endDate = endDate;
     project.status = status;
 
+    // Save the updated project
     await project.save();
 
+    // Redirect or return success response
     res.redirect('/project-model');
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server Error');
+    res.status(500).send({ message: `Server Error: ${err.message}` });
   }
 };
 
