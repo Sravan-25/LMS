@@ -4,9 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Bootstrap CSS -->
+  <%- include("./partials/title") %>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Font Awesome Icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
     body {
@@ -24,8 +23,40 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
       margin: 20px auto;
-      /* Center the content */
       text-align: center;
+    }
+
+    .navbar-brand {
+      font-size: 20px;
+      font-family: 'Brush Script MT', cursive;
+    }
+
+    .dropdown-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 10px 15px;
+      font-size: 14px;
+      color: #374151;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .dropdown-menu button:hover {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .logout-btn {
+      background-color: #ef4444;
+      color: white !important;
+      transition: background-color 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: #dc2626;
     }
 
     .search-bar {
@@ -104,44 +135,10 @@
       text-decoration: underline;
     }
 
-    .navbar-brand {
-      font-weight: bold;
-      font-size: 1.5rem;
-    }
-
-    .dropdown-menu button {
-      display: block;
-      width: 100%;
-      text-align: left;
-      background: none;
-      border: none;
-      padding: 10px 15px;
-      font-size: 14px;
-      color: #374151;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .dropdown-menu button:hover {
-      background-color: #2563eb;
-      color: white;
-    }
-
-    .logout-btn {
-      background-color: #ef4444;
-      color: white !important;
-      transition: background-color 0.3s ease;
-    }
-
-    .logout-btn:hover {
-      background-color: #dc2626;
-    }
-
     .form-popup {
       display: none;
       position: fixed;
       top: 10%;
-      /* Position the form below the navbar */
       left: 50%;
       transform: translateX(-50%);
       background-color: #fff;
@@ -180,24 +177,27 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container-fluid" id="navbar">
-      <a class="navbar-brand" href="#">IS-Kool</a>
-
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">TwinBots Docs</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
             <a class="nav-link active" href="/home"><i class="fas fa-house"></i> Home</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link active" href="/blogs"><i class="fas fa-newspaper"></i> Blogs</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/ai"><i class="fas fa-robot"></i> AI</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="/profile"><i class="fas fa-user"></i> Profile</a>
           </li>
         </ul>
-
         <div class="dropdown me-3">
           <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fas fa-plus"></i> New
@@ -211,7 +211,6 @@
             <li><button onclick="navigateToRoute('/document-page')">Business Docs</button></li>
           </ul>
         </div>
-
         <a href="/logout" class="btn logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
       </div>
     </div>
@@ -220,14 +219,10 @@
   <!-- Main Container for Tasks -->
   <div class="container mt-5">
     <h1>Project Tasks</h1>
-
-    <!-- Search Bar and Add Task Button -->
     <div class="search-bar d-flex justify-content-between mb-3">
       <input type="text" id="taskSearch" class="form-control" placeholder="Search tasks..." onkeyup="searchTasks()">
       <button class="btn btn-success" onclick="openForm()">Add Task</button>
     </div>
-
-    <!-- Task Table -->
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
@@ -265,12 +260,10 @@
         <label for="title" class="form-label">Title:</label>
         <input type="text" id="title" name="title" class="form-control" required>
       </div>
-
       <div class="mb-3">
         <label for="description" class="form-label">Description:</label>
         <textarea id="description" name="description" class="form-control"></textarea>
       </div>
-
       <div class="mb-3">
         <label for="assignedTo" class="form-label">Assign To:</label>
         <select id="assignedTo" name="assignedTo" class="form-select" required>
@@ -280,7 +273,6 @@
           <% }) %>
         </select>
       </div>
-
       <div class="mb-3">
         <label for="status" class="form-label">Status:</label>
         <select id="status" name="status" class="form-select">
@@ -289,7 +281,6 @@
           <option value="Completed">Completed</option>
         </select>
       </div>
-
       <div class="mb-3">
         <label for="priority" class="form-label">Priority:</label>
         <select id="priority" name="priority" class="form-select">
@@ -298,12 +289,10 @@
           <option value="High">High</option>
         </select>
       </div>
-
       <div class="mb-3">
         <label for="dueDate" class="form-label">Due Date:</label>
         <input type="date" id="dueDate" name="dueDate" class="form-control">
       </div>
-
       <button type="submit" class="btn btn-success">Create Task</button>
       <button type="button" class="btn btn-danger close-btn" onclick="closeForm()">Cancel</button>
     </form>

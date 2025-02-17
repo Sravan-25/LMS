@@ -98,5 +98,5 @@ app.use(documentRouter);
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`App started at PORT: ${PORT}`);
+  console.log(`🚀 Server is running at http://localhost:${PORT}`);
 });
