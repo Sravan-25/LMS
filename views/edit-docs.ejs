@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+  <% if (isEditing) { %>
+  <div class="modal-dialog modal-lg mx-auto" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Document</h5>
+        <button type="button" class="close" id="closeModalBtn" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Check if document exists before rendering the form -->
+        <% if (documents) { %>
+        <form action="/edit-document/<%= document._id %>" method="POST" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" class="form-control" value="<%= document.title %>" required>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" class="form-control" required><%= document.description %></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="uploadedBy">Assigned Staff:</label>
+            <select id="uploadedBy" name="uploadedBy" class="form-control" required>
+              <% staffList.forEach(staff => { %>
+              <option value="<%= staff._id %>" <%= staff._id == document.uploadedBy ? 'selected' : '' %>><%= staff.firstName %> <%= staff.lastName %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="project">Assigned Project:</label>
+            <select id="project" name="project" class="form-control" required>
+              <% projectList.forEach(project => { %>
+              <option value="<%= project._id %>" <%= project._id == document.project ? 'selected' : '' %>><%= project.name %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="file">Upload New File:</label>
+            <input type="file" id="file" name="file" class="form-control-file">
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Update Document</button>
+        </form>
+        <% } else { %>
+        <p>Document not found.</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+</body>
+
+</html>

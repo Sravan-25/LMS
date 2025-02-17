@@ -86,5 +86,4 @@ exports.renderStaffPage = async (req, res) => {
   }
 };
 
-// Export multer for routes
 exports.upload = upload;

@@ -3,7 +3,6 @@ const router = express.Router();
 const schoolsControllers = require('../Controllers/schoolsControllers');
 const multer = require('multer');
 
-// Multer setup
 const upload = multer({ dest: 'uploads/' });
 
 // Routes

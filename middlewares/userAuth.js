@@ -1,18 +1,19 @@
-const { validateToken } = require('./auth'); // Assuming auth.js is in utils
+const { validateToken } = require('./auth');
 
 const checkForAuthCookie = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
     return res.redirect('/login');
   }
+
   try {
-    const decoded = validateToken(token);
-    req.user = decoded;
+    req.user = validateToken(token);
     next();
   } catch (error) {
-    console.log(error.message); // Log the exact reason
-    res.clearCookie('token'); // Clear expired/invalid token
-    res.redirect('/login'); // Redirect to login
+    console.log(error.message);
+    res.clearCookie('token');
+    res.redirect('/login');
   }
 };
+
 module.exports = { checkForAuthCookie };

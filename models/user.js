@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Pre-save hook for hashing password
+// Hide password
 userSchema.pre('save', async function (next) {
   const user = this;
 
@@ -34,7 +34,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// Static method to validate the password and generate a token
+//  generate a token
 userSchema.statics.matchPasswordAndGenerateToken = async function (
   email,
   password

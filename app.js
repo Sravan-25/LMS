@@ -16,6 +16,7 @@ const bugRoute = require('./Routes/bugRoutes');
 const projectRoute = require('./Routes/projectRoutes');
 const projectModelRouter = require('./Routes/projectModelRoutes');
 const documentRouter = require('./Routes/documentRouter');
+const {authenticateUser} = require("./middlewares/auth");
 
 const app = express();
 const PORT = 5022;
@@ -74,9 +75,13 @@ app.get('/blogs', async (req, res) => {
   res.render('blogsHome', { blogs });
 });
 
-app.get('/home', (req, res) => {
+app.get('/home', authenticateUser, (req, res) => {
   res.render('home', { user: req.user });
 });
+
+app.get("/ai", (req, res) => {
+  res.render("Ai_Coplit")
+})
 
 // Static path for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

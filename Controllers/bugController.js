@@ -141,10 +141,8 @@ exports.updateBug = async (req, res) => {
     bug.severity = severity;
     bug.project = projectData._id;
 
-    // Save the updated bug
     await bug.save();
 
-    // Redirect back to the Bug Page
     res.redirect('/Bug-Page');
   } catch (err) {
     console.error('Error updating bug:', err);
@@ -164,7 +162,7 @@ exports.renderEditBugPage = async (req, res) => {
     }
     const staff = await Staff.find({}).lean();
     const projects = await Project.find({}).lean();
-    res.render('edit-bug', { bug, staff, projects }); // This renders the form to edit the bug
+    res.render('edit-bug', { bug, staff, projects });
   } catch (err) {
     console.error('Error fetching bug for edit:', err);
     res.status(500).send('Server Error');

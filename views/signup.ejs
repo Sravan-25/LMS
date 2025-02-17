@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Signup</title>
   <style>
     * {
       box-sizing: border-box;
@@ -84,7 +83,8 @@
       color: #ddd;
     }
 
-    input, select {
+    input,
+    select {
       padding: 14px;
       margin-bottom: 25px;
       border: 1px solid #ddd;
@@ -96,18 +96,21 @@
       transition: border-color 0.3s ease;
     }
 
-    body.dark-mode input, body.dark-mode select {
+    body.dark-mode input,
+    body.dark-mode select {
       background-color: #333;
       color: #ddd;
       border: 1px solid #555;
     }
 
-    input:focus, select:focus {
+    input:focus,
+    select:focus {
       border-color: #002855;
       box-shadow: 0 0 8px rgba(0, 40, 85, 0.3);
     }
 
-    body.dark-mode input:focus, body.dark-mode select:focus {
+    body.dark-mode input:focus,
+    body.dark-mode select:focus {
       border-color: #90caf9;
       box-shadow: 0 0 8px rgba(144, 202, 249, 0.5);
     }
@@ -142,22 +145,10 @@
       text-decoration: none;
     }
 
-    body.dark-mode .links a {
-      color: #90caf9;
-    }
-
     .links a:hover {
       text-decoration: underline;
     }
   </style>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const isDarkMode = localStorage.getItem('theme') === 'dark';
-      if (isDarkMode) {
-        document.body.classList.add('dark-mode');
-      }
-    });
-  </script>
 </head>
 
 <body>

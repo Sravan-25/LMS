@@ -14,7 +14,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Show all blogs
 exports.getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find();
@@ -25,7 +24,6 @@ exports.getAllBlogs = async (req, res) => {
   }
 };
 
-// Show a single blog
 exports.getBlog = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
@@ -39,12 +37,10 @@ exports.getBlog = async (req, res) => {
   }
 };
 
-// form for creating new blog
 exports.showCreateBlogForm = (req, res) => {
   res.render('addBlog');
 };
 
-// Create a new blog
 exports.createBlog = async (req, res) => {
   try {
     const { title, content, author } = req.body;
@@ -58,7 +54,6 @@ exports.createBlog = async (req, res) => {
   }
 };
 
-//edit blog form
 exports.showEditBlogForm = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
@@ -69,7 +64,6 @@ exports.showEditBlogForm = async (req, res) => {
   }
 };
 
-//update blog
 exports.updateBlog = async (req, res) => {
   try {
     const { title, content, author } = req.body;
@@ -94,7 +88,6 @@ exports.updateBlog = async (req, res) => {
   }
 };
 
-// Delete a blog
 exports.deleteBlog = async (req, res) => {
   try {
     await Blog.findByIdAndDelete(req.params.id);

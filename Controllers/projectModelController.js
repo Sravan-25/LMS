@@ -75,7 +75,6 @@ exports.createProjectSchema = async (req, res) => {
       });
     }
 
-    // Create a new project
     const newProject = new Project({
       name,
       description,
@@ -86,11 +85,8 @@ exports.createProjectSchema = async (req, res) => {
       endDate,
       status,
     });
-
-    // Save the project
     await newProject.save();
 
-    // Redirect or return a success response
     res.redirect('/project-model');
   } catch (err) {
     console.error(err);
@@ -126,14 +122,12 @@ exports.updateProject = async (req, res) => {
       status,
     } = req.body;
 
-    // Find the project to update
     const project = await Project.findByIdAndUpdate(req.params.id);
 
     if (!project) {
       return res.status(404).send('Project not found');
     }
 
-    // Validate and convert member IDs
     const memberIds = members
       .split(',')
       .map((id) => {
@@ -143,7 +137,6 @@ exports.updateProject = async (req, res) => {
         return new mongoose.Types.ObjectId(id);
       });
 
-    // Validate and convert task IDs
     const taskIds = tasks
       .split(',')
       .map((id) => {
@@ -153,12 +146,10 @@ exports.updateProject = async (req, res) => {
         return new mongoose.Types.ObjectId(id);
       });
 
-    // Fetch the related staff and tasks
     const createdByStaff = await Staff.findById(createdBy);
     const membersByStaff = await Staff.find({ _id: { $in: memberIds } });
     const tasksAssigning = await Task.find({ _id: { $in: taskIds } });
 
-    // Handle errors if any staff or task is not found
     if (!createdByStaff) {
       return res.status(400).json({
         message: 'Error: Assigned to staff member not found.',
@@ -177,7 +168,6 @@ exports.updateProject = async (req, res) => {
       });
     }
 
-    // Update project with new values
     project.name = name;
     project.description = description;
     project.createdBy = createdByStaff._id;
@@ -187,10 +177,8 @@ exports.updateProject = async (req, res) => {
     project.endDate = endDate;
     project.status = status;
 
-    // Save the updated project
     await project.save();
 
-    // Redirect or return success response
     res.redirect('/project-model');
   } catch (err) {
     console.error(err);

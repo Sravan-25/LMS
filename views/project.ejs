@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Tasks</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Font Awesome Icons -->
@@ -14,7 +13,7 @@
       font-family: Arial, sans-serif;
       background-color: #f4f4f9;
       margin: 0;
-      padding-top: 5rem; /* Increased padding for navbar */
+      padding-top: 5rem;
     }
 
     .container {
@@ -105,40 +104,44 @@
       text-decoration: underline;
     }
 
-    /* Styling for navbar dropdown buttons */
-    .navbar .dropdown .btn {
-      background-color: #6c757d; /* Grey color for dropdown buttons */
-      color: white;
-      border-radius: 5px;
+    .navbar-brand {
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+
+    .dropdown-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
       padding: 10px 15px;
+      font-size: 14px;
+      color: #374151;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .dropdown-menu button:hover {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .logout-btn {
+      background-color: #ef4444;
+      color: white !important;
       transition: background-color 0.3s ease;
     }
 
-    .navbar .dropdown .btn:hover {
-      background-color: #5a6268; /* Darker grey on hover */
-    }
-
-    .navbar .dropdown-menu {
-      border-radius: 5px;
-    }
-
-    .navbar .dropdown-menu button {
-      background-color: transparent;
-      color: #6c757d;
-      border: none;
-      width: 100%;
-      text-align: left;
-      padding: 10px 15px;
-    }
-
-    .navbar .dropdown-menu button:hover {
-      background-color: #f8f9fa;
+    .logout-btn:hover {
+      background-color: #dc2626;
     }
 
     .form-popup {
       display: none;
       position: fixed;
-      top: 10%; /* Position the form below the navbar */
+      top: 10%;
+      /* Position the form below the navbar */
       left: 50%;
       transform: translateX(-50%);
       background-color: #fff;
@@ -173,41 +176,43 @@
     .form-popup button.close-btn:hover {
       background-color: #e03e36;
     }
-
   </style>
 </head>
 
 <body>
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-    <div class="container-fluid">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid" id="navbar">
       <a class="navbar-brand" href="#">IS-Kool</a>
+
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item"><a class="nav-link active" href="/home"><i class="fas fa-house"></i> Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="/users"><i class="fas fa-users"></i> Users</a></li>
-          <li class="nav-item"><a class="nav-link" href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" href="/home"><i class="fas fa-house"></i> Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/profile"><i class="fas fa-user"></i> Profile</a>
+          </li>
         </ul>
+
         <div class="dropdown me-3">
-          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fas fa-plus"></i> New
           </button>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-            <li><button class="dropdown-item" onclick="navigateToRoute('/bug-page')">Bugs Data</button></li>
-            <li><button class="dropdown-item" onclick="navigateToRoute('/project-page')">Projects</button></li>
-            <li><button class="dropdown-item" onclick="navigateToRoute('/project-model')">Project Model</button></li>
-            <li><button class="dropdown-item" onclick="navigateToRoute('/school-data')">Schools Data</button></li>
-            <li><button class="dropdown-item" onclick="navigateToRoute('/staff-info')">Staff Info</button></li>
-            <li><button class="dropdown-item" onclick="navigateToRoute('/document-page')">Business Docs</button></li>
-            <li><button class="dropdown-item" onclick="navigateToRoute('/admins-data')">Admins Data</button></li>
-            <li><button class="dropdown-item" onclick="navigateToRoute('/is-kool-production')">Is-Kool Production</button></li>
-            <li><button class="dropdown-item" onclick="navigateToRoute('/doc-it-production')">Doc-it Production</button></li>
+            <li><button onclick="navigateToRoute('/staff-info')">Staff Info</button></li>
+            <li><button onclick="navigateToRoute('/project-page')">Tasks</button></li>
+            <li><button onclick="navigateToRoute('/project-model')">Project Model</button></li>
+            <li><button onclick="navigateToRoute('/bug-page')">Bugs Data</button></li>
+            <li><button onclick="navigateToRoute('/school-data')">Schools Data</button></li>
+            <li><button onclick="navigateToRoute('/document-page')">Business Docs</button></li>
           </ul>
         </div>
-        <a href="/logout" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+
+        <a href="/logout" class="btn logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
       </div>
     </div>
   </nav>

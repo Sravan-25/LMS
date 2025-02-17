@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In</title>
   <style>
     * {
       box-sizing: border-box;
@@ -174,7 +173,6 @@
       cursor: pointer;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
       appearance: none;
-      /* Removes default dropdown arrow */
       background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18px" height="18px"><path d="M7 10l5 5 5-5z"/></svg>');
       background-repeat: no-repeat;
       background-position: right 14px center;
@@ -192,22 +190,8 @@
       border-color: #002855;
       box-shadow: 0 0 8px rgba(0, 40, 85, 0.3);
     }
-
-    body.dark-mode select:focus {
-      border-color: #90caf9;
-      box-shadow: 0 0 8px rgba(144, 202, 249, 0.5);
-    }
   </style>
-  <script>
-    // Apply dark mode based on saved preference
-    document.addEventListener('DOMContentLoaded', () => {
-      const isDarkMode = localStorage.getItem('theme') === 'dark';
-      if (isDarkMode) {
-        document.body.classList.add('dark-mode');
-        document.querySelector('.container').classList.add('dark-mode');
-      }
-    });
-  </script>
+
 </head>
 
 <body>

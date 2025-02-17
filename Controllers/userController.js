@@ -3,10 +3,10 @@ const multer = require('multer');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'public/'); 
+    cb(null, 'public/');
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname); 
+    cb(null, Date.now() + '-' + file.originalname);
   },
 });
 
@@ -25,14 +25,25 @@ exports.renderHome = (req, res) => {
 
 exports.handleSignin = async (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.render('signin', { error: 'Email and password are required' });
+  }
+
   try {
     const token = await User.matchPasswordAndGenerateToken(email, password);
-    return res.cookie('token', token).redirect('/home');
-  } catch (error) {
-    console.error(error); 
-    return res.render('signin', {
-      error: 'Incorrect Email or Password',
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: 3600000,
     });
+
+    return res.redirect('/home');
+  } catch (error) {
+    console.error(error);
+    return res.render('signin', { error: 'Incorrect Email or Password' });
   }
 };
 
@@ -72,13 +83,12 @@ exports.renderProfile = async (req, res) => {
 exports.editProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    res.render('edit-profile', { user }); 
+    res.render('edit-profile', { user });
   } catch (error) {
     console.error(error);
     res.status(500).send('Server Error');
   }
 };
-
 
 const upload = multer({ storage });
 

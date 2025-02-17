@@ -159,7 +159,6 @@ exports.deleteDocs = async (req, res) => {
       return res.status(404).send('Document not found');
     }
 
-    // Optionally delete the file from the file system
     const filePath = path.join(
       __dirname,
       '../documents',

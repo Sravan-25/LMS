@@ -10,7 +10,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Controller
 exports.logSchools = async (req, res) => {
   try {
     const { schoolName, address, principalName, phoneNumber } = req.body;
